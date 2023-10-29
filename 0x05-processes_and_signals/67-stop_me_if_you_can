@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Start the 7-highlander process
+./7-highlander &
+
+# Capture the PID of the 7-highlander process
+highlander_pid=$!
+
+# Trap the SIGTERM signal
+trap 'kill -TERM $highlander_pid' SIGTERM
+
+# Continuously run and display the message
+while true
+do
+    echo "To infinity and beyond"
+    sleep 2
+done
+
+# Clean up
+trap - SIGTERM
