@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script is used for FizzBuzz game
+# FizzBuzz game
 n=1
 
 while [ $n -le 100 ]
