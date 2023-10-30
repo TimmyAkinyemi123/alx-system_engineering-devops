@@ -5,5 +5,5 @@ n=0
 until [ $n -ge 10 ]
 do
     echo "Best School"
-    n=$(( n + 1 ))
+    let n++
 done
