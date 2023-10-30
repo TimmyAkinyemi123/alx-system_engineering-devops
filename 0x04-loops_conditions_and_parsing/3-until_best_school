@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# This script displays "Best School" 10 times
+# Displays "Best School" 10 times using until loop
 n=0
 
 until [ $n -ge 10 ]
 do
     echo "Best School"
-    n=$(( n + 1 ))
+    n=$((n + 1))
 done
