@@ -1,11 +1,7 @@
-# installs a package
-package { 'Flask':
-  ensure   => '2.1.0',
-  provider => 'pip3',
-}
+#!/usr/bin/pup
+#Install flask from pip3
 
-exec { 'echo_flask_version':
-  command => '/bin/echo "flask --version" | /usr/bin/python3',
-  path    => ['/usr/bin', '/bin'],
-  require => Package['Flask'],
-}
+package { 'flask':
+  ensure  => '2.1.0',
+  provider => 'pip3',
+} 
