@@ -1,26 +1,25 @@
-# Install Nginx
-class { 'nginx':
-  ensure => 'installed',
+# Installs a Nginx server with custom HTTP header
+
+exec {'update':
+  provider => shell,
+  command  => 'sudo apt-get -y update',
+  before   => Exec['install Nginx'],
 }
 
-# Get the hostname
-$hostname = $facts['networking']['hostname']
-
-# Create a custom HTTP response header
-file { '/etc/nginx/sites-available/custom_header':
-  ensure  => 'file',
-  content => "add_header X-Served-By ${hostname};",
+exec {'install Nginx':
+  provider => shell,
+  command  => 'sudo apt-get -y install nginx',
+  before   => Exec['add_header'],
 }
 
-# Symbolic link to enable the site
-file { '/etc/nginx/sites-enabled/custom_header':
-  ensure => 'link',
-  target => '/etc/nginx/sites-available/custom_header',
+exec { 'add_header':
+  provider    => shell,
+  environment => ["HOST=${hostname}"],
+  command     => 'sudo sed -i "s/include \/etc\/nginx\/sites-enabled\/\*;/include \/etc\/nginx\/sites-enabled\/\*;\n\tadd_header X-Served-By \"$HOST\";/" /etc/nginx/nginx.conf',
+  before      => Exec['restart Nginx'],
 }
 
-# Restart Nginx for changes to take effect
-service { 'nginx':
-  ensure    => 'running',
-  enable    => true,
-  subscribe => File['/etc/nginx/sites-available/custom_header'],
+exec { 'restart Nginx':
+  provider => shell,
+  command  => 'sudo service nginx restart',
 }
