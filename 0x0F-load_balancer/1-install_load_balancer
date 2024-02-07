@@ -37,6 +37,13 @@ backend http_back
     server web-02 281767-web-02:80 check
 EOF
 
+# Verify HAProxy configuration
+if grep -q "web-01" /etc/haproxy/haproxy.cfg && grep -q "web-02" /etc/haproxy/haproxy.cfg; then
+	echo "HAProxy configuration includes web-01 and web-02."
+else
+	echo "Error: HAProxy configuration does not include web-01 and web-02."
+fi
+
 # Verify and reload HAProxy
 sudo haproxy -c -f /etc/haproxy/haproxy.cfg
 sudo systemctl restart haproxy
