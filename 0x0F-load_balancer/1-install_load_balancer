@@ -1,53 +1,40 @@
 #!/usr/bin/env bash
-# Install HAProxy
+#Installs and configures HAproxy in a load balancer server
 
-sudo apt update
-sudo apt install -y haproxy
+apt-get install -y software-properties-common
+add-apt-repository -y ppa:vbernat/haproxy-1.8
+apt-get update
+apt-get install -y haproxy=1.8.\*
 
-# Configure HAProxy
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.backup
-sudo cat <<EOF | sudo tee /etc/haproxy/haproxy.cfg
-global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin
-    stats timeout 30s
+echo "ENABLED=1" >> /etc/default/haproxy
+mv /etc/haproxy/haproxy.cfg{,.original}
+touch /etc/haproxy/haproxy.cfg
+
+printf %s "global
+    log 127.0.0.1 local0 notice
+    maxconn 2000
     user haproxy
     group haproxy
-    daemon
-
 defaults
-    log global
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    option redispatch
+    timeout connect  5000
+    timeout client  10000
+    timeout server  10000
+listen hbnb
+    bind 0.0.0.0:80
     mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
-
-frontend http_front
-    bind *:80
+    stats enable
     stats uri /haproxy?stats
-    default_backend http_back
-
-backend http_back
     balance roundrobin
+    option httpclose
+    option forwardfor
     server 281767-web-01 54.236.8.114:80 check
     server 281767-web-02 100.25.167.153:80 check
-EOF
+" >> /etc/haproxy/haproxy.cfg
 
-# Verify and reload HAProxy
-sudo haproxy -c -f /etc/haproxy/haproxy.cfg
-sudo systemctl restart haproxy
-
-# Ensure HAProxy init script management
-sudo systemctl enable haproxy
-
-# Ensure hostnames are properly configured
-sudo hostnamectl set-hostname 281767-lb-01
-echo "281767-lb-01" | sudo tee /etc/hostname
-sudo sed -i '/127.0.0.1/c\127.0.0.1 localhost 281767-lb-01' /etc/hosts
-
-# Restart to apply hostname changes
-sudo systemctl restart systemd-hostnamed
+service haproxy start
