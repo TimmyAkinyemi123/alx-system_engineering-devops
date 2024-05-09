@@ -16,7 +16,7 @@
 # ssh_config(5) man page.
 
 Host timmy
-    HostName 10.251.0.2
+    HostName 100.25.167.169
     User ubuntu
     ForwardAgent no
     ForwardX11 no
