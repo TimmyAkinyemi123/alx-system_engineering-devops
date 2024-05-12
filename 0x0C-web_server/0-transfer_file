@@ -4,7 +4,7 @@
 #Assigning parameters to values
 file_path=$1
 server_ip=$2
-usernane=$3
+username=$3
 ssh_key_path=$4
 if  [ "$#" -lt 3 ]
 then
